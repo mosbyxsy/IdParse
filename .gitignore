@@ -1,0 +1,37 @@
+# Dependencies and package-manager caches
+node_modules/
+.npm/
+.yarn/
+.pnpm-store/
+
+# Build, test, and coverage output
+dist/
+build/
+coverage/
+.cache/
+.temp/
+tmp/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local environment files
+.env
+.env.*
+!.env.example
+
+# Editors and IDEs
+.idea/
+.vscode/
+*.iml
+*.suo
+*.user
+
+# Operating-system metadata
+.DS_Store
+Thumbs.db
+Desktop.ini

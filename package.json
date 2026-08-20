@@ -1,0 +1,30 @@
+{
+  "name": "idparse",
+  "version": "1.0.0",
+  "private": true,
+  "description": "隐私优先、完全本地运行的中国大陆公民身份号码解析与格式校验工具",
+  "keywords": [
+    "id-card",
+    "parser",
+    "validator",
+    "offline",
+    "privacy"
+  ],
+  "scripts": {
+    "test": "node tests/id-parser.test.js",
+    "check": "npm test"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mosbyxsy/IdParse.git"
+  },
+  "author": "mosbyxsy",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/mosbyxsy/IdParse/issues"
+  },
+  "homepage": "https://github.com/mosbyxsy/IdParse#readme"
+}

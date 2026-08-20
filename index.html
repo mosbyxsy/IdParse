@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="完全离线运行的中国大陆公民身份证号码解析与格式校验工具。" />
+    <meta name="referrer" content="no-referrer" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"
+    />
+    <meta name="theme-color" content="#f5f2ea" />
+    <title>身份证号码解析器</title>
+    <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon.png" />
+    <link rel="stylesheet" href="src/styles.css" />
+  </head>
+  <body>
+    <!-- 纯装饰背景，不参与交互，也不会被辅助技术朗读。 -->
+    <div class="page-decoration page-decoration--one" aria-hidden="true"></div>
+    <div class="page-decoration page-decoration--two" aria-hidden="true"></div>
+
+    <main class="page-shell">
+      <!-- 页面品牌与功能简介。 -->
+      <header class="hero">
+        <div class="hero__heading">
+          <p class="hero__kicker">IDENTITY NUMBER TOOL</p>
+          <h1>身份证号码<span>解析器</span></h1>
+        </div>
+        <p class="hero__intro">
+          快速读取地区、性别与出生日期，校验号码规则，并支持 15 位与 18 位按需转换。全程离线处理。
+        </p>
+      </header>
+
+      <!-- 号码输入、历史记录与主操作区域。 -->
+      <section class="parser-card" aria-labelledby="parser-title">
+        <div class="parser-card__heading">
+          <div>
+            <p class="section-kicker">ID NUMBER</p>
+            <h2 id="parser-title">输入身份证号码</h2>
+          </div>
+          <span class="offline-badge"><span aria-hidden="true">●</span>离线可用</span>
+        </div>
+
+        <form id="id-form" novalidate>
+          <label class="field-label" for="id-number">公民身份号码</label>
+          <div class="input-frame">
+            <input
+              id="id-number"
+              name="id-number"
+              type="text"
+              inputmode="text"
+              autocomplete="off"
+              autocapitalize="characters"
+              spellcheck="false"
+              maxlength="18"
+              pattern="[0-9Xx]*"
+              placeholder="请输入 18 位或 15 位号码"
+              aria-describedby="input-hint char-count"
+            />
+            <button
+              id="input-copy"
+              class="input-action input-copy"
+              type="button"
+              aria-label="复制输入的身份证号码"
+              title="复制输入内容"
+              hidden
+            >
+              <span class="input-copy__icon" aria-hidden="true"></span>
+            </button>
+            <button id="input-clear" class="input-action input-clear" type="button" aria-label="清空身份证号码" hidden>×</button>
+          </div>
+          <div class="field-meta">
+            <span id="input-hint">18 位末位可以是数字或 X</span>
+            <span id="char-count" aria-live="polite">0 / 18</span>
+          </div>
+
+          <!-- 历史记录仅保存在当前浏览器的 localStorage 中。 -->
+          <div class="history-inline" aria-labelledby="history-title">
+            <div class="history-inline__title">
+              <span class="history-inline__dot" aria-hidden="true"></span>
+              <h3 id="history-title">解析历史</h3>
+              <span id="history-count" class="history-count" aria-live="polite">0 条</span>
+            </div>
+
+            <p id="history-empty" class="history-empty">暂无历史记录</p>
+            <ul id="history-list" class="history-list" aria-label="身份证号码解析历史" hidden></ul>
+
+            <div class="history-inline__tools">
+              <button
+                id="history-toggle"
+                class="history-toggle"
+                type="button"
+                aria-controls="history-list"
+                aria-expanded="false"
+                hidden
+              >
+                查看更多
+              </button>
+              <button id="clear-history" class="history-clear" type="button" disabled>清空</button>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button id="parse-button" class="button button--primary" type="submit" disabled>
+              <span>开始解析</span>
+              <span class="button__arrow" aria-hidden="true">→</span>
+            </button>
+            <button id="reset-button" class="button button--ghost" type="reset">清空</button>
+          </div>
+        </form>
+
+        <!-- 明确告知用户本工具的数据处理边界。 -->
+        <div class="privacy-note">
+          <span class="privacy-note__icon" aria-hidden="true">
+            <span class="privacy-note__lock"></span>
+          </span>
+          <p><strong>隐私提示</strong>号码不会上传；成功解析的记录仅保存在当前浏览器，可随时删除。</p>
+          <span class="privacy-note__meta">本机存储 · 随时清除</span>
+        </div>
+      </section>
+
+      <!-- 解析完成后由 app.js 填充；aria-live 负责播报状态变化。 -->
+      <section id="result-panel" class="result-panel" aria-live="polite" aria-atomic="false" hidden>
+        <div id="status-banner" class="status-banner">
+          <span id="status-icon" class="status-banner__icon" aria-hidden="true"></span>
+          <div>
+            <p id="status-kicker" class="status-banner__kicker"></p>
+            <h2 id="status-title"></h2>
+            <p id="status-description" class="status-banner__description"></p>
+          </div>
+        </div>
+
+        <div id="warning-box" class="warning-box" role="note" hidden>
+          <span class="warning-box__icon" aria-hidden="true">!</span>
+          <div>
+            <strong id="warning-title">提示</strong>
+            <p id="warning-text"></p>
+          </div>
+        </div>
+
+        <!-- 仅在号码通过校验时展示可解析的身份编码信息。 -->
+        <div id="details-section" class="details-section" hidden>
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">PARSED INFORMATION</p>
+              <h2>解析结果</h2>
+            </div>
+            <span id="format-chip" class="format-chip"></span>
+          </div>
+
+          <div class="result-grid">
+            <article class="result-item result-item--wide">
+              <span class="result-item__number">01</span>
+              <p class="result-item__label">登记地区</p>
+              <p id="result-region" class="result-item__value"></p>
+              <p id="result-region-code" class="result-item__meta"></p>
+            </article>
+            <article class="result-item">
+              <span class="result-item__number">02</span>
+              <p class="result-item__label">性别</p>
+              <p id="result-gender" class="result-item__value"></p>
+              <p class="result-item__meta">依据顺序码判断</p>
+            </article>
+            <article class="result-item">
+              <span class="result-item__number">03</span>
+              <p class="result-item__label">出生日期</p>
+              <p id="result-birth" class="result-item__value"></p>
+              <p id="result-birth-iso" class="result-item__meta"></p>
+            </article>
+          </div>
+
+          <div class="result-actions">
+            <a
+              id="region-map-link"
+              class="result-action result-action--map"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span class="region-map-cue__pin" aria-hidden="true"></span>
+              <span>查看地图</span>
+            </a>
+
+            <!-- 转换结果按需计算展示，默认只保留一个轻量入口。 -->
+            <div id="conversion-entry" class="conversion-entry" hidden>
+              <button id="run-conversion" class="conversion-entry__button" type="button">
+                <span class="conversion-entry__icon" aria-hidden="true">⇄</span>
+                <span id="conversion-entry-label">转换号码格式</span>
+              </button>
+            </div>
+          </div>
+
+          <div id="normalized-card" class="normalized-number" hidden>
+            <div>
+              <p id="normalized-label" class="normalized-number__label">格式转换结果</p>
+              <p id="normalized-number" class="normalized-number__value"></p>
+            </div>
+            <div class="normalized-number__aside">
+              <span id="normalized-note" class="normalized-number__note"></span>
+              <div class="normalized-number__actions">
+                <button id="copy-conversion" class="copy-button" type="button" hidden>复制结果</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 编码规则说明和逐项校验结果。 -->
+        <div class="checks-card">
+          <div class="section-heading section-heading--compact">
+            <div>
+              <p class="section-kicker">VALIDATION</p>
+              <h2>规则检查</h2>
+            </div>
+            <span id="check-summary" class="check-summary"></span>
+          </div>
+
+          <details class="rules-guide">
+            <summary>
+              <span>号码编码与验证规则</span>
+              <span class="rules-guide__hint">查看各位含义、判断方式与校验公式</span>
+            </summary>
+            <div class="rules-guide__body">
+              <article class="rule-card">
+                <span class="rule-card__range">第 1—6 位</span>
+                <strong>行政区划地址码</strong>
+                <p>前 2 位表示省级、前 4 位表示地级、6 位完整代码表示县级行政区。</p>
+              </article>
+              <article class="rule-card">
+                <span class="rule-card__range">第 7—14 位</span>
+                <strong>出生日期码</strong>
+                <p>采用 YYYYMMDD，必须构成真实日期且不能晚于当前日期。</p>
+              </article>
+              <article class="rule-card">
+                <span class="rule-card__range">第 15—17 位</span>
+                <strong>顺序码</strong>
+                <p>同地区、同生日人员的顺序号，不能为 000；末位奇数为男性，偶数为女性。</p>
+              </article>
+              <article class="rule-card">
+                <span class="rule-card__range">第 18 位</span>
+                <strong>校验码</strong>
+                <p>前 17 位逐位乘权重后求和并对 11 取余，再通过映射表得到数字或 X。</p>
+              </article>
+              <article class="rule-card rule-card--formula">
+                <span class="rule-card__range">计算方法</span>
+                <strong>加权校验公式</strong>
+                <p><code>S = Σ(aᵢ × Wᵢ)，r = S mod 11</code></p>
+                <p>权重 W：7、9、10、5、8、4、2、1、6、3、7、9、10、5、8、4、2</p>
+                <p>余数 0—10 的校验位映射：1、0、X、9、8、7、6、5、4、3、2</p>
+                <div class="rule-example">
+                  <strong>计算示例（程序生成的虚构号码）</strong>
+                  <ol>
+                    <li>取前 17 位：<code>35042619650912351</code></li>
+                    <li>逐位相乘：<code>21+45+0+20+16+24+2+9+36+15+0+81+10+10+24+20+2</code></li>
+                    <li>乘积之和 <code>S = 335</code>，对 11 取余：<code>335 mod 11 = 5</code></li>
+                    <li>余数 5 对应映射表中的校验位 <code>7</code>，完整示例为 <code>350426196509123517</code></li>
+                  </ol>
+                </div>
+              </article>
+              <article class="rule-card rule-card--note">
+                <span class="rule-card__range">验证顺序</span>
+                <strong>逐项排查</strong>
+                <p>格式与长度 → 行政区划 → 出生日期 → 顺序码 → 18 位校验码。15 位旧号码没有校验位，年份按 19YY 补全。</p>
+              </article>
+            </div>
+          </details>
+
+          <ul id="checks-list" class="checks-list"></ul>
+        </div>
+      </section>
+
+      <footer class="page-footer">
+        <p>依据 GB 11643-1999 进行格式校验</p>
+        <p>行政区划数据版本：1981—2025</p>
+        <p class="page-footer__disclaimer">本工具只能检查号码编码规则，不能证明证件或持证人真实存在。</p>
+      </footer>
+    </main>
+
+    <!-- 加载顺序不可交换：区划数据 → 解析核心 → 页面交互。 -->
+    <script src="src/region-data.js"></script>
+    <script src="src/id-parser.js"></script>
+    <script src="src/app.js"></script>
+  </body>
+</html>
