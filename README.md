@@ -87,6 +87,17 @@ npm test
 
 区划数据已压缩到 `src/region-data.js`。对于已停用的地址码，工具会显示历史名称、停用年份和数据集中可用的现行对应地区。
 
+## 命名约定
+
+- CSS class 使用小写连字符和轻量 BEM：`parse-history` 表示组件，`parse-history__title` 表示内部元素，`button--primary` 表示变体；变体与基础类一起使用，不按 DOM 层级连续嵌套 `__`。
+- 动态状态使用 `is-*`，例如 `is-expanded`、`is-copied`；浏览器已有的 `hidden`、`disabled`、`open` 状态直接使用原生属性。状态选择器限定在所属组件内。
+- HTML id 使用小写连字符，表达唯一节点用途，例如 `conversion-copy-button`；用于 JavaScript 定位、label 和 ARIA 关联。外观通过 class 设置，不使用 id 选择器或内联样式。
+- JavaScript 变量使用小驼峰；按钮节点以 `Button` 结尾，布尔状态使用 `is`、`has`、`can` 等前缀，计数使用 `Count` 后缀，定时器标识使用 `TimeoutId` 后缀。短作用域中的 `item`、`index`、`result` 等名称可以保留。
+- 函数按动作命名，例如 `renderHistory`、`getStatusSymbol`、`formatBirthDateExtras`；固定配置和算法常量使用大写下划线，例如 `HISTORY_LIMIT`、`CHECKSUM_WEIGHTS`。
+- CSS 自定义属性按用途命名：`--color-text`、`--color-primary`、`--color-success`、`--shadow-card`、`--radius-small`。品牌色与校验状态色独立，具体装饰颜色可以留在组件内。
+- `normalizedInput` 表示清洗后的输入，`convertedNumber` 表示格式转换结果。公共入口 `IdCardParser`、`IdRegionData` 及解析结果字段 `normalized` 保持兼容；后者对 15 位号码表示补全后的 18 位号码。
+- 历史记录存储键 `id-card-parser-history-v1` 和已存储字段保持稳定；修改变量名称时不同时修改持久化数据格式。
+
 ## 许可证
 
 项目代码采用 [Apache License 2.0](LICENSE)；行政区划数据沿用其上游的 CC0 1.0 许可。

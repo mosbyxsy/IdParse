@@ -1,20 +1,25 @@
 /* 全局设计令牌：颜色、阴影与圆角统一从这里调整。 */
 :root {
   color-scheme: light;
-  --ink: #15251f;
-  --ink-soft: #526059;
-  --paper: #f5f2ea;
-  --card: rgba(255, 255, 255, 0.88);
-  --line: #d8ddd7;
-  --green: #1e5d45;
-  --green-deep: #154632;
-  --green-pale: #e7f2eb;
-  --amber: #a36313;
-  --amber-pale: #fff2d8;
-  --red: #a43e34;
-  --red-pale: #fceae7;
-  --blue: #315e73;
-  --shadow: 0 26px 80px rgba(35, 54, 45, 0.12);
+  --color-text: #15251f;
+  --color-text-muted: #526059;
+  --color-background: #f5f2ea;
+  --color-surface: rgba(255, 255, 255, 0.88);
+  --color-border: #d8ddd7;
+  --color-primary: #1e5d45;
+  --color-success: #1e5d45;
+  --color-success-subtle: #e7f2eb;
+  --color-success-text: #154632;
+  --color-primary-subtle: #e7f2eb;
+  --color-warning-text: #75460e;
+  --color-warning-note-text: #71470e;
+  --color-warning-subtle: #fff2d8;
+  --color-danger: #a43e34;
+  --color-danger-text: #762b25;
+  --color-danger-subtle: #fceae7;
+  --color-info: #315e73;
+  --color-info-subtle: #e5f0f4;
+  --shadow-card: 0 26px 80px rgba(35, 54, 45, 0.12);
   --radius-large: 28px;
   --radius-medium: 18px;
   --radius-small: 12px;
@@ -33,10 +38,10 @@ body {
   min-height: 100vh;
   margin: 0;
   overflow-x: hidden;
-  color: var(--ink);
+  color: var(--color-text);
   background:
     radial-gradient(circle at 12% 10%, rgba(199, 220, 203, 0.55), transparent 27rem),
-    linear-gradient(140deg, #f8f5ee 0%, var(--paper) 48%, #eef1e9 100%);
+    linear-gradient(140deg, #f8f5ee 0%, var(--color-background) 48%, #eef1e9 100%);
   font-family:
     "Noto Sans SC", "Microsoft YaHei", "PingFang SC", system-ui, -apple-system,
     BlinkMacSystemFont, sans-serif;
@@ -64,7 +69,7 @@ button {
   pointer-events: none;
 }
 
-.page-decoration--one {
+.page-decoration--top-right {
   top: -12rem;
   right: -13rem;
   width: 34rem;
@@ -74,7 +79,7 @@ button {
     inset 0 0 0 8rem rgba(30, 93, 69, 0.025);
 }
 
-.page-decoration--two {
+.page-decoration--bottom-left {
   bottom: 5rem;
   left: -15rem;
   width: 28rem;
@@ -102,7 +107,7 @@ button {
 
 .hero__kicker {
   margin: 0 0 10px;
-  color: var(--green);
+  color: var(--color-primary);
   font-size: 11px;
   font-weight: 850;
   letter-spacing: 0.19em;
@@ -131,13 +136,13 @@ button {
 
 .hero h1 span {
   margin-left: 0.22em;
-  color: var(--green);
+  color: var(--color-primary);
 }
 
 .hero__intro {
   max-width: 390px;
   margin: 0 0 2px;
-  color: var(--ink-soft);
+  color: var(--color-text-muted);
   font-size: 14px;
   line-height: 1.75;
 }
@@ -148,8 +153,8 @@ button {
 .checks-card {
   border: 1px solid rgba(255, 255, 255, 0.78);
   border-radius: var(--radius-large);
-  background: var(--card);
-  box-shadow: var(--shadow);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
   backdrop-filter: blur(18px);
 }
 
@@ -171,7 +176,7 @@ button {
 
 .section-kicker {
   margin: 0 0 6px;
-  color: var(--green);
+  color: var(--color-primary);
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.18em;
@@ -188,8 +193,8 @@ button {
 .offline-badge {
   gap: 7px;
   padding: 8px 12px;
-  color: var(--green);
-  background: var(--green-pale);
+  color: var(--color-primary);
+  background: var(--color-primary-subtle);
   letter-spacing: 0;
 }
 
@@ -209,14 +214,14 @@ button {
   position: relative;
 }
 
-#id-number {
+.id-number-input {
   width: 100%;
   height: 68px;
   padding: 0 96px 0 20px;
-  border: 1.5px solid var(--line);
+  border: 1.5px solid var(--color-border);
   border-radius: var(--radius-small);
   outline: 0;
-  color: var(--ink);
+  color: var(--color-text);
   background: rgba(255, 255, 255, 0.72);
   font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
   font-size: clamp(17px, 3vw, 22px);
@@ -225,7 +230,7 @@ button {
   transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
 }
 
-#id-number::placeholder {
+.id-number-input::placeholder {
   color: #9ba49f;
   font-family: inherit;
   font-size: 16px;
@@ -233,8 +238,8 @@ button {
   letter-spacing: 0;
 }
 
-#id-number:focus {
-  border-color: var(--green);
+.id-number-input:focus {
+  border-color: var(--color-primary);
   background: #fff;
   box-shadow: 0 0 0 4px rgba(30, 93, 69, 0.11);
 }
@@ -248,7 +253,7 @@ button {
   height: 32px;
   transform: translateY(-50%);
   border-radius: 50%;
-  color: var(--ink-soft);
+  color: var(--color-text-muted);
   background: #edf0ed;
   cursor: pointer;
   line-height: 1;
@@ -295,11 +300,11 @@ button {
 .input-action:hover,
 .input-copy.is-copied {
   color: #fff;
-  background: var(--green);
+  background: var(--color-primary);
 }
 
 .input-action:hover .input-copy__icon::after {
-  background: var(--green);
+  background: var(--color-primary);
 }
 
 .input-copy.is-copied .input-copy__icon::before {
@@ -328,12 +333,12 @@ button {
   font-size: 12px;
 }
 
-#char-count {
+.input-char-count {
   font-variant-numeric: tabular-nums;
 }
 
-#char-count.is-over {
-  color: var(--red);
+.input-char-count.is-over-limit {
+  color: var(--color-danger);
   font-weight: 700;
 }
 
@@ -421,13 +426,13 @@ button {
 
 .button--ghost {
   min-width: 90px;
-  border: 1px solid var(--line);
-  color: var(--ink-soft);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
   background: transparent;
 }
 
 .button--ghost:hover {
-  color: var(--ink);
+  color: var(--color-text);
   background: #f1f3f0;
 }
 
@@ -440,7 +445,7 @@ button {
   padding: 13px 16px;
   border: 1px solid #e1ebe4;
   border-radius: 13px;
-  color: var(--ink-soft);
+  color: var(--color-text-muted);
   background: #f4f8f5;
 }
 
@@ -485,7 +490,7 @@ button {
   width: 2px;
   height: 4px;
   border-radius: 2px;
-  background: var(--green);
+  background: var(--color-primary);
   content: "";
 }
 
@@ -497,20 +502,20 @@ button {
 
 .privacy-note strong {
   margin-right: 7px;
-  color: var(--ink);
+  color: var(--color-text);
 }
 
 .privacy-note__meta {
   flex: 0 0 auto;
   margin-left: auto;
-  color: var(--green);
+  color: var(--color-primary);
   font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.08em;
 }
 
 /* 历史记录：默认紧凑单行，展开后切换为完整详情列表。 */
-.history-inline {
+.parse-history {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -525,25 +530,25 @@ button {
   transition: opacity 150ms ease;
 }
 
-.history-inline:hover,
-.history-inline:focus-within,
-.history-inline.is-expanded {
+.parse-history:hover,
+.parse-history:focus-within,
+.parse-history.is-expanded {
   opacity: 1;
 }
 
-.history-inline__title,
-.history-inline__tools {
+.parse-history__title,
+.parse-history__tools {
   display: flex;
   align-items: center;
 }
 
-.history-inline__title {
+.parse-history__title {
   flex: 0 0 auto;
   min-width: 0;
   gap: 6px;
 }
 
-.history-inline__title h3 {
+.parse-history__title h3 {
   margin: 0;
   color: #68746d;
   font-size: 11px;
@@ -551,14 +556,14 @@ button {
   line-height: 1.4;
 }
 
-.history-inline__dot {
+.parse-history__dot {
   width: 4px;
   height: 4px;
   border-radius: 50%;
   background: #91a198;
 }
 
-.history-inline__tools {
+.parse-history__tools {
   flex: 0 0 auto;
   gap: 4px;
 }
@@ -588,12 +593,12 @@ button {
 }
 
 .history-toggle:hover {
-  background: var(--green-pale);
+  background: var(--color-primary-subtle);
 }
 
 .history-clear:hover:not(:disabled) {
-  color: var(--red);
-  background: var(--red-pale);
+  color: var(--color-danger);
+  background: var(--color-danger-subtle);
 }
 
 .history-toggle:focus-visible,
@@ -650,7 +655,7 @@ button {
   opacity: 1;
 }
 
-.history-inline:not(.is-expanded) .history-item {
+.parse-history:not(.is-expanded) .history-item {
   opacity: 0.94;
 }
 
@@ -690,8 +695,8 @@ button {
   flex: 0 0 auto;
   padding: 2px 5px;
   border-radius: 999px;
-  color: var(--green);
-  background: var(--green-pale);
+  color: var(--color-primary);
+  background: var(--color-primary-subtle);
   font-size: 9px;
   font-weight: 800;
 }
@@ -732,13 +737,13 @@ button {
 
 .history-item__copy:hover,
 .history-item__copy.is-copied {
-  color: var(--green);
-  background: var(--green-pale);
+  color: var(--color-primary);
+  background: var(--color-primary-subtle);
 }
 
 .history-item__delete:hover {
-  color: var(--red);
-  background: var(--red-pale);
+  color: var(--color-danger);
+  background: var(--color-danger-subtle);
 }
 
 .history-copy-icon {
@@ -781,26 +786,26 @@ button {
   line-height: 1;
 }
 
-.history-inline.is-expanded {
+.parse-history.is-expanded {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 0 10px;
   padding: 13px 14px;
   border-color: #d9e2dc;
   border-radius: 11px;
-  color: var(--ink-soft);
+  color: var(--color-text-muted);
   background: rgba(250, 251, 249, 0.92);
 }
 
-.history-inline.is-expanded .history-inline__title {
+.parse-history.is-expanded .parse-history__title {
   grid-column: 1;
 }
 
-.history-inline.is-expanded .history-inline__tools {
+.parse-history.is-expanded .parse-history__tools {
   grid-column: 2;
 }
 
-.history-inline.is-expanded .history-list {
+.parse-history.is-expanded .history-list {
   display: block;
   grid-column: 1 / -1;
   width: 100%;
@@ -809,7 +814,7 @@ button {
   border-top: 1px solid #e2e7e3;
 }
 
-.history-inline.is-expanded .history-item {
+.parse-history.is-expanded .history-item {
   gap: 8px;
   border: 0;
   border-bottom: 1px solid #e7ebe8;
@@ -817,11 +822,11 @@ button {
   background: transparent;
 }
 
-.history-inline.is-expanded .history-item:last-child {
+.parse-history.is-expanded .history-item:last-child {
   border-bottom: 0;
 }
 
-.history-inline.is-expanded .history-item__open {
+.parse-history.is-expanded .history-item__open {
   display: grid;
   flex: 1 1 auto;
   grid-template-columns: minmax(180px, 0.72fr) minmax(0, 1fr);
@@ -829,43 +834,43 @@ button {
   padding: 11px 8px;
 }
 
-.history-inline.is-expanded .history-item__format {
+.parse-history.is-expanded .history-item__format {
   display: inline-block;
   font-size: 10px;
 }
 
-.history-inline.is-expanded .history-item__details {
+.parse-history.is-expanded .history-item__details {
   display: block;
-  color: var(--ink-soft);
+  color: var(--color-text-muted);
   font-size: 12px;
   line-height: 1.55;
 }
 
-.history-inline.is-expanded .history-item__number {
+.parse-history.is-expanded .history-item__number {
   overflow: hidden;
-  color: var(--ink);
+  color: var(--color-text);
   font-size: 13px;
   font-weight: 700;
   text-overflow: ellipsis;
 }
 
-.history-inline.is-expanded .history-item__copy {
+.parse-history.is-expanded .history-item__copy {
   display: grid;
 }
 
-.history-inline.is-expanded .history-inline__title h3 {
-  color: var(--ink);
+.parse-history.is-expanded .parse-history__title h3 {
+  color: var(--color-text);
   font-size: 13px;
   font-weight: 750;
 }
 
-.history-inline.is-expanded .history-count,
-.history-inline.is-expanded .history-toggle,
-.history-inline.is-expanded .history-clear {
+.parse-history.is-expanded .history-count,
+.parse-history.is-expanded .history-toggle,
+.parse-history.is-expanded .history-clear {
   font-size: 11px;
 }
 
-.history-inline.is-expanded .history-item__action {
+.parse-history.is-expanded .history-item__action {
   width: 29px;
   height: 29px;
 }
@@ -892,20 +897,20 @@ button {
   padding: 24px 28px;
   border: 1px solid #c7ddce;
   border-radius: var(--radius-medium);
-  color: var(--green-deep);
-  background: var(--green-pale);
+  color: var(--color-success-text);
+  background: var(--color-success-subtle);
 }
 
 .status-banner--error {
   border-color: #efc4bd;
-  color: #762b25;
-  background: var(--red-pale);
+  color: var(--color-danger-text);
+  background: var(--color-danger-subtle);
 }
 
 .status-banner--legacy {
   border-color: #ead2a5;
-  color: #75460e;
-  background: var(--amber-pale);
+  color: var(--color-warning-text);
+  background: var(--color-warning-subtle);
 }
 
 .status-banner__icon {
@@ -942,8 +947,8 @@ button {
   padding: 17px 20px;
   border: 1px solid #ead2a5;
   border-radius: var(--radius-small);
-  color: #71470e;
-  background: var(--amber-pale);
+  color: var(--color-warning-note-text);
+  background: var(--color-warning-subtle);
 }
 
 .warning-box__icon {
@@ -985,8 +990,8 @@ button {
 .format-chip,
 .check-summary {
   padding: 7px 11px;
-  color: var(--green);
-  background: var(--green-pale);
+  color: var(--color-success);
+  background: var(--color-success-subtle);
   letter-spacing: 0;
 }
 
@@ -1007,7 +1012,7 @@ button {
   background: rgba(250, 251, 248, 0.86);
 }
 
-.region-map-cue__pin {
+.region-map-link__icon {
   position: relative;
   width: 10px;
   height: 10px;
@@ -1016,7 +1021,7 @@ button {
   border-radius: 50% 50% 50% 0;
 }
 
-.region-map-cue__pin::after {
+.region-map-link__icon::after {
   position: absolute;
   top: 2px;
   left: 2px;
@@ -1039,7 +1044,7 @@ button {
 
 .result-item__label {
   margin: 0 0 24px;
-  color: var(--ink-soft);
+  color: var(--color-text-muted);
   font-size: 12px;
   font-weight: 700;
 }
@@ -1066,7 +1071,7 @@ button {
 }
 
 /* 15 位与 18 位按需转换的结果卡片。 */
-.normalized-number {
+.conversion-result {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1075,7 +1080,7 @@ button {
   padding: 20px 22px;
   border-radius: var(--radius-medium);
   color: #fff;
-  background: var(--ink);
+  background: var(--color-text);
 }
 
 .result-actions {
@@ -1099,7 +1104,7 @@ button {
   padding: 0 12px;
   border: 1px solid #d8e2dc;
   border-radius: 10px;
-  color: var(--green);
+  color: var(--color-primary);
   background: rgba(255, 255, 255, 0.58);
   cursor: pointer;
   font-size: 12px;
@@ -1112,7 +1117,7 @@ button {
 .conversion-entry__button:hover {
   transform: translateY(-1px);
   border-color: #bdd3c5;
-  background: var(--green-pale);
+  background: var(--color-primary-subtle);
 }
 
 .result-action:focus-visible,
@@ -1126,14 +1131,14 @@ button {
   font-weight: 500;
 }
 
-.normalized-number__label {
+.conversion-result__label {
   margin: 0 0 6px;
   color: #afc4b9;
   font-size: 11px;
   font-weight: 700;
 }
 
-.normalized-number__value {
+.conversion-result__value {
   margin: 0;
   overflow-wrap: anywhere;
   font-family: "SFMono-Regular", Consolas, monospace;
@@ -1142,13 +1147,7 @@ button {
   letter-spacing: 0.06em;
 }
 
-.normalized-number__value.is-unavailable {
-  font-family: inherit;
-  font-size: 16px;
-  letter-spacing: 0;
-}
-
-.normalized-number__aside {
+.conversion-result__aside {
   display: flex;
   flex: 0 0 auto;
   align-items: flex-end;
@@ -1156,7 +1155,7 @@ button {
   gap: 10px;
 }
 
-.normalized-number__note {
+.conversion-result__note {
   max-width: none;
   color: #c6d4cd;
   font-size: 11px;
@@ -1165,7 +1164,7 @@ button {
   white-space: nowrap;
 }
 
-.normalized-number__actions {
+.conversion-result__actions {
   display: flex;
   justify-content: flex-end;
   gap: 8px;
@@ -1212,7 +1211,7 @@ button {
   gap: 12px;
   min-height: 44px;
   padding: 0 14px;
-  color: var(--ink);
+  color: var(--color-text);
   cursor: pointer;
   font-size: 12px;
   font-weight: 750;
@@ -1226,7 +1225,7 @@ button {
 .rules-guide summary::after {
   flex: 0 0 auto;
   margin-left: auto;
-  color: var(--green);
+  color: var(--color-primary);
   content: "+";
   font-size: 18px;
   font-weight: 500;
@@ -1275,7 +1274,7 @@ button {
 .rule-card__range {
   display: block;
   margin-bottom: 5px;
-  color: var(--green);
+  color: var(--color-primary);
   font-family: "SFMono-Regular", Consolas, monospace;
   font-size: 9px;
   font-weight: 750;
@@ -1290,7 +1289,7 @@ button {
 
 .rule-card p {
   margin: 0;
-  color: var(--ink-soft);
+  color: var(--color-text-muted);
   font-size: 10px;
   line-height: 1.65;
 }
@@ -1300,7 +1299,7 @@ button {
 }
 
 .rule-card code {
-  color: var(--ink);
+  color: var(--color-text);
   font-family: "SFMono-Regular", Consolas, monospace;
   font-size: 10px;
 }
@@ -1315,14 +1314,14 @@ button {
 
 .rule-example > strong {
   margin-bottom: 6px;
-  color: var(--green-deep);
+  color: var(--color-success-text);
   font-size: 10px;
 }
 
 .rule-example ol {
   margin: 0;
   padding-left: 18px;
-  color: var(--ink-soft);
+  color: var(--color-text-muted);
 }
 
 .rule-example li {
@@ -1333,7 +1332,7 @@ button {
 
 .rule-example code {
   overflow-wrap: anywhere;
-  color: var(--ink);
+  color: var(--color-text);
   font-weight: 650;
 }
 
@@ -1360,7 +1359,7 @@ button {
   transition: border-color 150ms ease, background 150ms ease;
 }
 
-.check-item__copy {
+.check-item__content {
   min-width: 0;
 }
 
@@ -1371,20 +1370,20 @@ button {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  color: var(--green);
-  background: var(--green-pale);
+  color: var(--color-success);
+  background: var(--color-success-subtle);
   font-size: 13px;
   font-weight: 800;
 }
 
 .check-item--fail .check-item__icon {
-  color: var(--red);
-  background: var(--red-pale);
+  color: var(--color-danger);
+  background: var(--color-danger-subtle);
 }
 
 .check-item--info .check-item__icon {
-  color: var(--blue);
-  background: #e5f0f4;
+  color: var(--color-info);
+  background: var(--color-info-subtle);
 }
 
 .check-item--pending .check-item__icon {
@@ -1401,7 +1400,7 @@ button {
 .check-item p {
   margin: 0;
   overflow-wrap: anywhere;
-  color: var(--ink-soft);
+  color: var(--color-text-muted);
   font-size: 11px;
   line-height: 1.55;
 }
@@ -1471,18 +1470,18 @@ button {
     grid-column: 1 / -1;
   }
 
-  .normalized-number {
+  .conversion-result {
     align-items: flex-start;
     flex-direction: column;
   }
 
-  .normalized-number__note {
+  .conversion-result__note {
     max-width: none;
     text-align: left;
     white-space: normal;
   }
 
-  .normalized-number__aside {
+  .conversion-result__aside {
     flex: 0 0 auto;
     align-items: flex-start;
   }
@@ -1508,20 +1507,20 @@ button {
     border-radius: 22px;
   }
 
-  .history-inline:not(.is-expanded) {
+  .parse-history:not(.is-expanded) {
     justify-content: space-between;
   }
 
-  .history-inline:not(.is-expanded) .history-list {
+  .parse-history:not(.is-expanded) .history-list {
     display: none;
   }
 
-  .history-inline.is-expanded .history-item__open {
+  .parse-history.is-expanded .history-item__open {
     grid-template-columns: 1fr;
     gap: 3px;
   }
 
-  .history-inline.is-expanded .history-item__details {
+  .parse-history.is-expanded .history-item__details {
     overflow: visible;
     text-overflow: clip;
     white-space: normal;
@@ -1538,7 +1537,7 @@ button {
     font-size: 11px;
   }
 
-  #id-number {
+  .id-number-input {
     height: 62px;
     padding-left: 15px;
     font-size: 16px;

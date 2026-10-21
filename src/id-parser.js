@@ -2,7 +2,7 @@
   "use strict";
 
   // GB 11643-1999：前 17 位的固定权重，以及“加权和模 11”对应的校验位。
-  var WEIGHTS = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2];
+  var CHECKSUM_WEIGHTS = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2];
   var CHECKSUM_MAP = ["1", "0", "X", "9", "8", "7", "6", "5", "4", "3", "2"];
 
   // 统一每一项规则检查的数据结构，供界面直接渲染。
@@ -21,7 +21,7 @@
     if (!/^\d{17}$/.test(String(body))) return null;
 
     var sum = String(body).split("").reduce(function (total, digit, index) {
-      return total + Number(digit) * WEIGHTS[index];
+      return total + Number(digit) * CHECKSUM_WEIGHTS[index];
     }, 0);
     return CHECKSUM_MAP[sum % 11];
   }
@@ -77,8 +77,8 @@
       return { valid: false, error: "出生月份不正确。" };
     }
 
-    var leap = year % 400 === 0 || (year % 4 === 0 && year % 100 !== 0);
-    var daysInMonth = [31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    var isLeapYear = year % 400 === 0 || (year % 4 === 0 && year % 100 !== 0);
+    var daysInMonth = [31, isLeapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
     if (day < 1 || day > daysInMonth[month - 1]) {
       return { valid: false, error: "出生日期不是有效的公历日期。" };
     }

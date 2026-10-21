@@ -7,8 +7,8 @@
   // 缓存页面节点，后续渲染时不重复查询 DOM。
   var form = document.getElementById("id-form");
   var input = document.getElementById("id-number");
-  var inputCopy = document.getElementById("input-copy");
-  var inputClear = document.getElementById("input-clear");
+  var inputCopyButton = document.getElementById("input-copy-button");
+  var inputClearButton = document.getElementById("input-clear-button");
   var parseButton = document.getElementById("parse-button");
   var resetButton = document.getElementById("reset-button");
   var charCount = document.getElementById("char-count");
@@ -28,38 +28,38 @@
   var resultRegionCode = document.getElementById("result-region-code");
   var resultGender = document.getElementById("result-gender");
   var resultBirth = document.getElementById("result-birth");
-  var resultBirthIso = document.getElementById("result-birth-iso");
+  var resultBirthExtras = document.getElementById("result-birth-extras");
   var conversionEntry = document.getElementById("conversion-entry");
   var conversionEntryLabel = document.getElementById("conversion-entry-label");
-  var normalizedCard = document.getElementById("normalized-card");
-  var normalizedLabel = document.getElementById("normalized-label");
-  var normalizedNumber = document.getElementById("normalized-number");
-  var normalizedNote = document.getElementById("normalized-note");
-  var runConversion = document.getElementById("run-conversion");
-  var copyConversion = document.getElementById("copy-conversion");
+  var conversionResultCard = document.getElementById("conversion-result-card");
+  var conversionResultLabel = document.getElementById("conversion-result-label");
+  var conversionResultNumber = document.getElementById("conversion-result-number");
+  var conversionResultNote = document.getElementById("conversion-result-note");
+  var conversionRunButton = document.getElementById("conversion-run-button");
+  var conversionCopyButton = document.getElementById("conversion-copy-button");
   var checkSummary = document.getElementById("check-summary");
   var checksList = document.getElementById("checks-list");
   var historyList = document.getElementById("history-list");
-  var historyInline = document.querySelector(".history-inline");
+  var parseHistory = document.querySelector(".parse-history");
   var historyEmpty = document.getElementById("history-empty");
   var historyCount = document.getElementById("history-count");
-  var historyToggle = document.getElementById("history-toggle");
-  var clearHistoryButton = document.getElementById("clear-history");
+  var historyToggleButton = document.getElementById("history-toggle-button");
+  var historyClearButton = document.getElementById("history-clear-button");
 
   // 页面会话状态；历史记录最多保存 20 条，且只写入当前浏览器。
-  var conversionValue = "";
+  var convertedNumber = "";
   var pendingConversion = null;
-  var inputCopyTimer = null;
-  var historyStorageKey = "id-card-parser-history-v1";
-  var historyLimit = 20;
-  var historyExpanded = false;
-  var mobileHistoryMedia = window.matchMedia("(max-width: 520px)");
+  var inputCopyTimeoutId = null;
+  var HISTORY_STORAGE_KEY = "id-card-parser-history-v1";
+  var HISTORY_LIMIT = 20;
+  var isHistoryExpanded = false;
+  var historyMobileQuery = window.matchMedia("(max-width: 520px)");
   var historyRecords = loadHistory();
 
   // 读取历史时同时校验数据结构，忽略旧版本或被破坏的记录。
   function loadHistory() {
     try {
-      var stored = window.localStorage.getItem(historyStorageKey);
+      var stored = window.localStorage.getItem(HISTORY_STORAGE_KEY);
       if (!stored) return [];
       var parsed = JSON.parse(stored);
       if (!Array.isArray(parsed)) return [];
@@ -77,7 +77,7 @@
             !Number.isNaN(new Date(record.createdAt).getTime())
           );
         })
-        .slice(0, historyLimit);
+        .slice(0, HISTORY_LIMIT);
     } catch (error) {
       return [];
     }
@@ -86,9 +86,9 @@
   function persistHistory() {
     try {
       if (historyRecords.length) {
-        window.localStorage.setItem(historyStorageKey, JSON.stringify(historyRecords));
+        window.localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(historyRecords));
       } else {
-        window.localStorage.removeItem(historyStorageKey);
+        window.localStorage.removeItem(HISTORY_STORAGE_KEY);
       }
     } catch (error) {
       // localStorage 被禁用时，历史仍可在当前页面会话内使用。
@@ -98,19 +98,18 @@
   // 使用 textContent 动态创建历史项，避免把号码内容当作 HTML 注入页面。
   function renderHistory() {
     historyList.replaceChildren();
-    historyInline.classList.toggle("is-expanded", historyExpanded);
-    historyInline.classList.toggle("is-empty", historyRecords.length === 0);
+    parseHistory.classList.toggle("is-expanded", isHistoryExpanded);
     historyCount.textContent = historyRecords.length + " 条";
     historyEmpty.hidden = historyRecords.length !== 0;
     historyList.hidden = historyRecords.length === 0;
-    clearHistoryButton.disabled = historyRecords.length === 0;
-    historyToggle.hidden = historyRecords.length === 0;
-    historyToggle.textContent = historyExpanded
+    historyClearButton.disabled = historyRecords.length === 0;
+    historyToggleButton.hidden = historyRecords.length === 0;
+    historyToggleButton.textContent = isHistoryExpanded
       ? "收起"
-      : mobileHistoryMedia.matches
+      : historyMobileQuery.matches
         ? "查看历史记录"
         : "查看详情";
-    historyToggle.setAttribute("aria-expanded", String(historyExpanded));
+    historyToggleButton.setAttribute("aria-expanded", String(isHistoryExpanded));
 
     var fragment = document.createDocumentFragment();
     historyRecords.forEach(function (record) {
@@ -173,21 +172,21 @@
       fragment.appendChild(item);
     });
     historyList.appendChild(fragment);
-    if (!historyExpanded) window.requestAnimationFrame(fitCompactHistoryItems);
+    if (!isHistoryExpanded) window.requestAnimationFrame(fitCompactHistoryItems);
   }
 
   // 收起状态按实际可用宽度显示尽可能多的记录，剩余记录通过详情展开。
   function fitCompactHistoryItems() {
-    if (historyExpanded || historyRecords.length === 0) return;
+    if (isHistoryExpanded || historyRecords.length === 0) return;
 
     var items = Array.prototype.slice.call(historyList.children);
     items.forEach(function (item) {
       item.hidden = false;
     });
 
-    if (mobileHistoryMedia.matches) {
-      historyToggle.hidden = false;
-      historyToggle.textContent = "查看历史记录";
+    if (historyMobileQuery.matches) {
+      historyToggleButton.hidden = false;
+      historyToggleButton.textContent = "查看历史记录";
       return;
     }
 
@@ -209,8 +208,8 @@
       }
     });
 
-    historyToggle.hidden = false;
-    historyToggle.textContent =
+    historyToggleButton.hidden = false;
+    historyToggleButton.textContent =
       visibleCount < historyRecords.length ? "查看更多" : "查看详情";
   }
 
@@ -227,7 +226,7 @@
       birthDate: result.birthDate.iso,
       createdAt: Date.now()
     });
-    historyRecords = historyRecords.slice(0, historyLimit);
+    historyRecords = historyRecords.slice(0, HISTORY_LIMIT);
     persistHistory();
     renderHistory();
   }
@@ -237,20 +236,20 @@
     var length = input.value.trim().length;
     var canParse = length === 15 || length === 18;
     charCount.textContent = length + " / 18";
-    charCount.classList.toggle("is-over", length > 18);
+    charCount.classList.toggle("is-over-limit", length > 18);
     parseButton.disabled = !canParse;
     parseButton.setAttribute(
       "aria-label",
       canParse ? "开始解析身份证号码" : "请输入 15 位或 18 位身份证号码后再解析"
     );
-    inputCopy.hidden = length === 0;
-    inputClear.hidden = input.value.length === 0;
-    inputCopy.classList.remove("is-copied");
-    inputCopy.setAttribute("aria-label", "复制输入的身份证号码");
-    inputCopy.title = "复制输入内容";
+    inputCopyButton.hidden = length === 0;
+    inputClearButton.hidden = input.value.length === 0;
+    inputCopyButton.classList.remove("is-copied");
+    inputCopyButton.setAttribute("aria-label", "复制输入的身份证号码");
+    inputCopyButton.title = "复制输入内容";
   }
 
-  function statusSymbol(status) {
+  function getStatusSymbol(status) {
     if (status === "pass") return "✓";
     if (status === "fail") return "×";
     if (status === "info") return "i";
@@ -264,7 +263,7 @@
     return new Date(parts[0], parts[1] - 1, parts[2], 12, 0, 0);
   }
 
-  function lunarDayName(day) {
+  function getLunarDayName(day) {
     var digits = ["", "一", "二", "三", "四", "五", "六", "七", "八", "九"];
     if (day <= 0 || day > 30) return String(day);
     if (day < 10) return "初" + digits[day];
@@ -285,14 +284,14 @@
       return lunar
         .replace(/^\d{4}/, "")
         .replace(/(\d+)日?$/, function (_, day) {
-          return lunarDayName(Number(day));
+          return getLunarDayName(Number(day));
         });
     } catch (error) {
       return "当前浏览器不支持农历换算";
     }
   }
 
-  function constellationName(month, day) {
+  function getConstellationName(month, day) {
     var boundary = [20, 19, 21, 20, 21, 22, 23, 23, 23, 24, 23, 22];
     var names = [
       "摩羯座",
@@ -312,7 +311,7 @@
     return day < boundary[month - 1] ? names[month - 1] : names[month];
   }
 
-  function birthDateExtras(iso) {
+  function formatBirthDateExtras(iso) {
     var date = createDateFromIso(iso);
     if (!date) return "";
     var weekdays = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
@@ -322,7 +321,7 @@
       " · " +
       weekdays[date.getDay()] +
       " · " +
-      constellationName(date.getMonth() + 1, date.getDate())
+      getConstellationName(date.getMonth() + 1, date.getDate())
     );
   }
 
@@ -336,40 +335,40 @@
       var icon = document.createElement("span");
       icon.className = "check-item__icon";
       icon.setAttribute("aria-hidden", "true");
-      icon.textContent = statusSymbol(check.status);
+      icon.textContent = getStatusSymbol(check.status);
 
-      var copy = document.createElement("div");
-      copy.className = "check-item__copy";
+      var content = document.createElement("div");
+      content.className = "check-item__content";
       var label = document.createElement("strong");
       var detail = document.createElement("p");
       label.textContent = check.label;
       detail.textContent = check.detail;
 
       if (check.key === "birthDate" && result.birthDate) {
-        detail.textContent += " · " + birthDateExtras(result.birthDate.iso);
+        detail.textContent += " · " + formatBirthDateExtras(result.birthDate.iso);
       }
 
-      copy.append(label, detail);
-      item.append(icon, copy);
+      content.append(label, detail);
+      item.append(icon, content);
       checksList.appendChild(item);
     });
 
-    var passed = result.checks.filter(function (check) {
+    var passedCount = result.checks.filter(function (check) {
       return check.status === "pass";
     }).length;
-    var failed = result.checks.filter(function (check) {
+    var failedCount = result.checks.filter(function (check) {
       return check.status === "fail";
     }).length;
-    var informed = result.checks.filter(function (check) {
+    var infoCount = result.checks.filter(function (check) {
       return check.status === "info";
     }).length;
 
-    if (failed > 0) {
-      checkSummary.textContent = passed + " / " + result.checks.length + " 项通过";
-    } else if (informed > 0) {
-      checkSummary.textContent = passed + " 项通过 · " + informed + " 项说明";
+    if (failedCount > 0) {
+      checkSummary.textContent = passedCount + " / " + result.checks.length + " 项通过";
+    } else if (infoCount > 0) {
+      checkSummary.textContent = passedCount + " 项通过 · " + infoCount + " 项说明";
     } else {
-      checkSummary.textContent = passed + " / " + result.checks.length + " 项通过";
+      checkSummary.textContent = passedCount + " / " + result.checks.length + " 项通过";
     }
   }
 
@@ -415,11 +414,11 @@
   // 合法号码才展示地区、性别、出生日期、地图入口和可用的转换操作。
   function renderDetails(result) {
     pendingConversion = null;
-    conversionValue = "";
+    convertedNumber = "";
     conversionEntry.hidden = true;
-    normalizedCard.hidden = true;
-    runConversion.hidden = true;
-    copyConversion.hidden = true;
+    conversionResultCard.hidden = true;
+    conversionRunButton.hidden = true;
+    conversionCopyButton.hidden = true;
     detailsSection.hidden = !result.valid;
     if (!result.valid) return;
 
@@ -439,19 +438,19 @@
     regionMapLink.setAttribute("aria-label", "在高德地图中查看" + result.region.fullName);
     resultGender.textContent = result.gender;
     resultBirth.textContent = result.birthDate.formatted;
-    resultBirthIso.textContent = birthDateExtras(result.birthDate.iso);
+    resultBirthExtras.textContent = formatBirthDateExtras(result.birthDate.iso);
     var conversion = result.conversion;
     pendingConversion = conversion;
-    conversionValue = "";
-    normalizedLabel.textContent =
+    convertedNumber = "";
+    conversionResultLabel.textContent =
       conversion.sourceFormat + " 位转 " + conversion.targetFormat + " 位";
 
     if (conversion.possible) {
       conversionEntry.hidden = false;
-      runConversion.hidden = false;
+      conversionRunButton.hidden = false;
       conversionEntryLabel.textContent = "转换为 " + conversion.targetFormat + " 位";
-      copyConversion.hidden = true;
-      copyConversion.textContent = "复制结果";
+      conversionCopyButton.hidden = true;
+      conversionCopyButton.textContent = "复制结果";
     }
   }
 
@@ -485,13 +484,13 @@
     detailsSection.hidden = true;
     regionMapLink.removeAttribute("href");
     checksList.replaceChildren();
-    conversionValue = "";
+    convertedNumber = "";
     pendingConversion = null;
     conversionEntry.hidden = true;
-    normalizedCard.hidden = true;
-    runConversion.hidden = true;
-    copyConversion.hidden = true;
-    copyConversion.textContent = "复制结果";
+    conversionResultCard.hidden = true;
+    conversionRunButton.hidden = true;
+    conversionCopyButton.hidden = true;
+    conversionCopyButton.textContent = "复制结果";
   }
 
   // file:// 页面通常不属于安全上下文，因此保留 execCommand 复制降级方案。
@@ -505,7 +504,7 @@
     temporary.select();
     var copied = document.execCommand("copy");
     temporary.remove();
-    return copied ? Promise.resolve() : Promise.reject(new Error("copy failed"));
+    return copied ? Promise.resolve() : Promise.reject(new Error("copy failedCount"));
   }
 
   function copyText(text) {
@@ -538,59 +537,58 @@
     window.setTimeout(updateInputState, 0);
   });
 
-  inputClear.addEventListener("click", function () {
+  inputClearButton.addEventListener("click", function () {
     input.value = "";
     updateInputState();
     clearResults();
     input.focus();
   });
 
-  inputCopy.addEventListener("click", function () {
+  inputCopyButton.addEventListener("click", function () {
     var value = input.value.trim();
     if (!value) return;
 
     copyText(value)
       .then(function () {
-        window.clearTimeout(inputCopyTimer);
-        inputCopy.classList.add("is-copied");
-        inputCopy.setAttribute("aria-label", "输入内容已复制");
-        inputCopy.title = "已复制";
-        inputCopyTimer = window.setTimeout(function () {
-          inputCopy.classList.remove("is-copied");
-          inputCopy.setAttribute("aria-label", "复制输入的身份证号码");
-          inputCopy.title = "复制输入内容";
+        window.clearTimeout(inputCopyTimeoutId);
+        inputCopyButton.classList.add("is-copied");
+        inputCopyButton.setAttribute("aria-label", "输入内容已复制");
+        inputCopyButton.title = "已复制";
+        inputCopyTimeoutId = window.setTimeout(function () {
+          inputCopyButton.classList.remove("is-copied");
+          inputCopyButton.setAttribute("aria-label", "复制输入的身份证号码");
+          inputCopyButton.title = "复制输入内容";
         }, 1600);
       })
       .catch(function () {
-        inputCopy.title = "复制失败";
+        inputCopyButton.title = "复制失败";
       });
   });
 
   // 号码转换默认不展示结果，只有用户主动点击后才展开。
-  runConversion.addEventListener("click", function () {
+  conversionRunButton.addEventListener("click", function () {
     if (!pendingConversion || !pendingConversion.possible) return;
-    conversionValue = pendingConversion.value;
+    convertedNumber = pendingConversion.value;
     conversionEntry.hidden = true;
-    normalizedCard.hidden = false;
-    normalizedNumber.textContent = pendingConversion.value;
-    normalizedNumber.classList.remove("is-placeholder", "is-unavailable");
-    normalizedNote.textContent = pendingConversion.note;
-    runConversion.hidden = true;
-    copyConversion.hidden = false;
-    copyConversion.textContent = "复制结果";
+    conversionResultCard.hidden = false;
+    conversionResultNumber.textContent = pendingConversion.value;
+    conversionResultNote.textContent = pendingConversion.note;
+    conversionRunButton.hidden = true;
+    conversionCopyButton.hidden = false;
+    conversionCopyButton.textContent = "复制结果";
   });
 
-  copyConversion.addEventListener("click", function () {
-    if (!conversionValue) return;
-    copyText(conversionValue)
+  conversionCopyButton.addEventListener("click", function () {
+    if (!convertedNumber) return;
+    copyText(convertedNumber)
       .then(function () {
-        copyConversion.textContent = "已复制";
+        conversionCopyButton.textContent = "已复制";
         window.setTimeout(function () {
-          copyConversion.textContent = "复制结果";
+          conversionCopyButton.textContent = "复制结果";
         }, 1600);
       })
       .catch(function () {
-        copyConversion.textContent = "复制失败";
+        conversionCopyButton.textContent = "复制失败";
       });
   });
 
@@ -622,7 +620,7 @@
       historyRecords = historyRecords.filter(function (record) {
         return record.number !== numberToDelete;
       });
-      if (historyRecords.length === 0) historyExpanded = false;
+      if (historyRecords.length === 0) isHistoryExpanded = false;
       persistHistory();
       renderHistory();
       return;
@@ -637,14 +635,14 @@
     resultPanel.scrollIntoView({ behavior: prefersReducedMotion ? "auto" : "smooth", block: "start" });
   });
 
-  historyToggle.addEventListener("click", function () {
-    historyExpanded = !historyExpanded;
+  historyToggleButton.addEventListener("click", function () {
+    isHistoryExpanded = !isHistoryExpanded;
     renderHistory();
   });
 
-  clearHistoryButton.addEventListener("click", function () {
+  historyClearButton.addEventListener("click", function () {
     historyRecords = [];
-    historyExpanded = false;
+    isHistoryExpanded = false;
     persistHistory();
     renderHistory();
   });
@@ -676,13 +674,13 @@
     window.addEventListener("resize", fitCompactHistoryItems);
   }
   var handleHistoryBreakpointChange = function (event) {
-    if (event.matches) historyExpanded = false;
+    if (event.matches) isHistoryExpanded = false;
     renderHistory();
   };
-  if (mobileHistoryMedia.addEventListener) {
-    mobileHistoryMedia.addEventListener("change", handleHistoryBreakpointChange);
+  if (historyMobileQuery.addEventListener) {
+    historyMobileQuery.addEventListener("change", handleHistoryBreakpointChange);
   } else {
-    mobileHistoryMedia.addListener(handleHistoryBreakpointChange);
+    historyMobileQuery.addListener(handleHistoryBreakpointChange);
   }
   renderHistory();
   updateInputState();

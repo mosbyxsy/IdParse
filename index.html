@@ -16,8 +16,8 @@
   </head>
   <body>
     <!-- 纯装饰背景，不参与交互，也不会被辅助技术朗读。 -->
-    <div class="page-decoration page-decoration--one" aria-hidden="true"></div>
-    <div class="page-decoration page-decoration--two" aria-hidden="true"></div>
+    <div class="page-decoration page-decoration--top-right" aria-hidden="true"></div>
+    <div class="page-decoration page-decoration--bottom-left" aria-hidden="true"></div>
 
     <main class="page-shell">
       <!-- 页面品牌与功能简介。 -->
@@ -46,6 +46,7 @@
           <div class="input-frame">
             <input
               id="id-number"
+              class="id-number-input"
               name="id-number"
               type="text"
               inputmode="text"
@@ -58,7 +59,7 @@
               aria-describedby="input-hint char-count"
             />
             <button
-              id="input-copy"
+              id="input-copy-button"
               class="input-action input-copy"
               type="button"
               aria-label="复制输入的身份证号码"
@@ -67,17 +68,17 @@
             >
               <span class="input-copy__icon" aria-hidden="true"></span>
             </button>
-            <button id="input-clear" class="input-action input-clear" type="button" aria-label="清空身份证号码" hidden>×</button>
+            <button id="input-clear-button" class="input-action input-clear" type="button" aria-label="清空身份证号码" hidden>×</button>
           </div>
           <div class="field-meta">
             <span id="input-hint">18 位末位可以是数字或 X</span>
-            <span id="char-count" aria-live="polite">0 / 18</span>
+            <span id="char-count" class="input-char-count" aria-live="polite">0 / 18</span>
           </div>
 
           <!-- 历史记录仅保存在当前浏览器的 localStorage 中。 -->
-          <div class="history-inline" aria-labelledby="history-title">
-            <div class="history-inline__title">
-              <span class="history-inline__dot" aria-hidden="true"></span>
+          <div class="parse-history" aria-labelledby="history-title">
+            <div class="parse-history__title">
+              <span class="parse-history__dot" aria-hidden="true"></span>
               <h3 id="history-title">解析历史</h3>
               <span id="history-count" class="history-count" aria-live="polite">0 条</span>
             </div>
@@ -85,9 +86,9 @@
             <p id="history-empty" class="history-empty">暂无历史记录</p>
             <ul id="history-list" class="history-list" aria-label="身份证号码解析历史" hidden></ul>
 
-            <div class="history-inline__tools">
+            <div class="parse-history__tools">
               <button
-                id="history-toggle"
+                id="history-toggle-button"
                 class="history-toggle"
                 type="button"
                 aria-controls="history-list"
@@ -96,7 +97,7 @@
               >
                 查看更多
               </button>
-              <button id="clear-history" class="history-clear" type="button" disabled>清空</button>
+              <button id="history-clear-button" class="history-clear" type="button" disabled>清空</button>
             </div>
           </div>
 
@@ -165,39 +166,39 @@
               <span class="result-item__number">03</span>
               <p class="result-item__label">出生日期</p>
               <p id="result-birth" class="result-item__value"></p>
-              <p id="result-birth-iso" class="result-item__meta"></p>
+              <p id="result-birth-extras" class="result-item__meta"></p>
             </article>
           </div>
 
           <div class="result-actions">
             <a
               id="region-map-link"
-              class="result-action result-action--map"
+              class="result-action region-map-link"
               target="_blank"
               rel="noopener noreferrer"
             >
-              <span class="region-map-cue__pin" aria-hidden="true"></span>
+              <span class="region-map-link__icon" aria-hidden="true"></span>
               <span>查看地图</span>
             </a>
 
             <!-- 转换结果按需计算展示，默认只保留一个轻量入口。 -->
             <div id="conversion-entry" class="conversion-entry" hidden>
-              <button id="run-conversion" class="conversion-entry__button" type="button">
+              <button id="conversion-run-button" class="conversion-entry__button" type="button">
                 <span class="conversion-entry__icon" aria-hidden="true">⇄</span>
                 <span id="conversion-entry-label">转换号码格式</span>
               </button>
             </div>
           </div>
 
-          <div id="normalized-card" class="normalized-number" hidden>
+          <div id="conversion-result-card" class="conversion-result" hidden>
             <div>
-              <p id="normalized-label" class="normalized-number__label">格式转换结果</p>
-              <p id="normalized-number" class="normalized-number__value"></p>
+              <p id="conversion-result-label" class="conversion-result__label">格式转换结果</p>
+              <p id="conversion-result-number" class="conversion-result__value"></p>
             </div>
-            <div class="normalized-number__aside">
-              <span id="normalized-note" class="normalized-number__note"></span>
-              <div class="normalized-number__actions">
-                <button id="copy-conversion" class="copy-button" type="button" hidden>复制结果</button>
+            <div class="conversion-result__aside">
+              <span id="conversion-result-note" class="conversion-result__note"></span>
+              <div class="conversion-result__actions">
+                <button id="conversion-copy-button" class="copy-button" type="button" hidden>复制结果</button>
               </div>
             </div>
           </div>
